@@ -204,16 +204,16 @@ class AuthManager:
         )
         contacts = self.cursor.fetchall()
         
-        if not contacts:
-            print_info("No emergency contacts configured for this user.")
-            return
-        
-        print("\n📞 Emergency Contacts:")
-        for contact_id, name, phone, email, allowed_categories, created_at in contacts:
-            print(f"  • {name} ({phone})")
-            if email:
-                print(f"    Email: {email}")
-            print(f"    Access: {allowed_categories}")
+        # Show emergency contacts if any exist
+        if contacts:
+            print("\n📞 Emergency Contacts:")
+            for contact_id, name, phone, email, allowed_categories, created_at in contacts:
+                print(f"  • {name} ({phone})")
+                if email:
+                    print(f"    Email: {email}")
+                print(f"    Access: {allowed_categories}")
+        else:
+            print("\n📞 Emergency Contacts: None configured")
         
         # Show accessible data
         print("\n📋 Accessible Data:")
@@ -224,6 +224,9 @@ class AuthManager:
             print_info("No data found for this user.")
             return
         
+        # Always include Emergency category entries in emergency mode
+        emergency_entries = [entry for entry in entries if entry.category.lower() == "emergency"]
+        
         # Group by category
         categories = {}
         for entry in entries:
@@ -231,11 +234,24 @@ class AuthManager:
                 categories[entry.category] = []
             categories[entry.category].append(entry)
         
-        for category, category_entries in categories.items():
-            print(f"\n🏷️  {category.upper()}")
-            print("-" * 30)
-            for entry in category_entries:
+        # Always show Emergency category first
+        if "Emergency" in categories:
+            print(f"\n🏷️  EMERGENCY (Always Accessible in Emergency Mode)")
+            print("═" * 50)
+            for entry in categories["Emergency"]:
                 print(f"  • {entry.title}: {entry.get_decrypted_content()}")
+        else:
+            print(f"\n🏷️  EMERGENCY (Always Accessible in Emergency Mode)")
+            print("═" * 50)
+            print("  • No emergency entries found")
+        
+        # Show other categories that contacts have access to
+        for category, category_entries in categories.items():
+            if category.lower() != "emergency":  # Skip emergency as it's already shown
+                print(f"\n🏷️  {category.upper()}")
+                print("-" * 30)
+                for entry in category_entries:
+                    print(f"  • {entry.title}: {entry.get_decrypted_content()}")
         
         input("\nPress Enter to continue...")
 

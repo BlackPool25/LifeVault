@@ -89,6 +89,11 @@ def print_emergency_menu():
     2. Failed attempts will lock the account for 2 hours
     3. Account owner will be notified of access attempts
     
+    📋 Emergency Access Features:
+    • All Emergency category entries are always accessible
+    • Additional categories based on emergency contact permissions
+    • Complete emergency contact information displayed
+    
     """)
 
 def print_security_warning():
